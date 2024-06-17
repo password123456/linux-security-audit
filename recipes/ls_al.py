@@ -80,7 +80,6 @@ def ls_al(filepath):
 
 
 print(ls_al('/etc/passwd'))
-print(ls_al('/etc/localtime'))
 print(ls_al('/usr/bin/crontab'))
 print(ls_al('/usr/bin/at'))
 print(ls_al('/usr/bin/write'))
@@ -88,7 +87,6 @@ print(ls_al('/System/Library/Templates/Data/Library/Fonts'))
 
 """
 -rw-r--r-- 1 root wheel 8160 Oct 18 20:36 /etc/passwd
-lrwxr-xr-x 1 root wheel 36 Feb 04 12:57 /etc/localtime -> /var/db/timezone/zoneinfo/Asia/Seoul
 -rwsr-xr-x 1 root wheel 203984 Oct 18 21:36 /usr/bin/crontab
 -r-sr-xr-x 2 root wheel 187040 Oct 18 21:36 /usr/bin/at
 -r-xr-sr-x 1 root tty 135584 Oct 18 21:36 /usr/bin/write
