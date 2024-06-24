@@ -5,19 +5,19 @@ __date__ = '2024.06.21'
 def check_disabled_accounts_passwords():
     raw_data = ''
     result_code = 0
-    password_file = '/etc/passwd'
-    shadow_file = '/etc/shadow'
+    audit_files = '/etc/passwd'
+    shadow_password = '/etc/shadow'
 
     try:
         shadow_dict = {}
-        with open(shadow_file, 'r', encoding='utf-8') as sf:
+        with open(shadow_password, 'r', encoding='utf-8') as sf:
             for line in sf:
                 fields = line.strip().split(':')
                 username = fields[0]
                 password_hash = fields[1]
                 shadow_dict[username] = password_hash
 
-        with open(password_file, 'r', encoding='utf-8') as pf:
+        with open(audit_files, 'r', encoding='utf-8') as pf:
             for line in pf:
                 if line.startswith('#'):
                     continue
@@ -33,10 +33,10 @@ def check_disabled_accounts_passwords():
                     password_hash = shadow_dict.get(username, '')
                     if password_hash.startswith('$'):
                         result_code = 1
-                        raw_data += f'[vul] {line.strip()}\n'
+                        raw_data += f'[vul] {line.strip()} ---> [{shadow_password} >> {password_hash[:8]}....]\n'
                     else:
                         raw_data += f'[ok] {line.strip()}\n'
-
+            raw_data = f'# cat {audit_files}\n...\n{raw_data}'
     except FileNotFoundError as fnf_error:
         result_code = 3
         raw_data = f'File not found: {str(fnf_error)}'
@@ -53,13 +53,12 @@ def main():
     print(f'Raw Data: \n{raw_data}')
 
 
-if __name__ == '__main__':
-    main()
-
-
 """
 Result Code: 0
-Raw Data: [ok] bin:x:1:1:bin:/bin:/sbin/nologin
+Raw Data: 
+# cat ./etc/passwd
+...
+[ok] bin:x:1:1:bin:/bin:/sbin/nologin
 [ok] daemon:x:2:2:daemon:/sbin:/sbin/nologin
 [ok] adm:x:3:4:adm:/var/adm:/sbin/nologin
 [ok] mail:x:8:12:mail:/var/spool/mail:/sbin/nologin
@@ -71,7 +70,7 @@ Raw Data: [ok] bin:x:1:1:bin:/bin:/sbin/nologin
 [ok] tss:x:59:59:Account used for TPM access:/dev/null:/sbin/nologin
 [ok] polkitd:x:998:996:User for polkitd:/:/sbin/nologin
 [ok] sssd:x:997:994:User for sssd:/:/sbin/nologin
-[ok] chrony:x:996:993::/var/lib/chrony:/sbin/nologin
+[vul] chrony:x:996:993::/var/lib/chrony:/sbin/nologin ---> [./etc/shadow >> $6$TxGdY....]
 [ok] sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin
 [ok] tcpdump:x:72:72::/:/sbin/nologin
 [ok] unbound:x:499:499:Unbound DNS resolver:/etc/unbound:/sbin/nologin
